@@ -67,6 +67,13 @@
   .layout{display:grid; grid-template-columns: 1.5fr 1fr; gap:20px; align-items:start;}
   @media (max-width:1100px){ .layout{grid-template-columns:1fr;} }
 
+  .layout > section.panel:first-child{
+    position:sticky; top:20px; max-height:calc(100vh - 40px); display:flex; flex-direction:column;
+  }
+  @media (max-width:1100px){
+    .layout > section.panel:first-child{ position:static; max-height:none; }
+  }
+
   .panel{
     background:var(--panel); border:1px solid var(--line); border-radius:4px; overflow:hidden;
   }
@@ -83,7 +90,10 @@
   }
   tbody td{padding:6px 8px; border-bottom:1px solid #eee7d8; vertical-align:middle;}
   tr.section-row td{background:#eef1ea; font-weight:700; color:var(--teal-dark);}
-  .table-scroll{max-height:640px; overflow-y:auto; border-top:1px solid var(--line);}
+  .layout > section.panel:first-child > .panel-body{
+    flex:1; min-height:0; display:flex; flex-direction:column;
+  }
+  .table-scroll{flex:1; min-height:200px; overflow-y:auto; border-top:1px solid var(--line);}
   input.pct{
     width:64px; padding:4px 6px; border:1px solid var(--line); border-radius:3px; font-size:.86rem;
     text-align:right; font-family: inherit;
@@ -160,6 +170,33 @@
   .modal-body{padding:6px 20px 22px; overflow-y:auto;}
   .modal-body h3{font-size:.95rem; margin-top:16px; color:var(--teal);}
   .modal-body p{font-size:.88rem; color:#333; margin:6px 0 0; line-height:1.55;}
+  /* ===================== PRINT / THESIS-FIGURE VIEW ===================== */
+  @media print{
+    @page{ size: landscape; margin: 10mm; }
+    *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; color-adjust:exact !important; }
+    body{ background:#fff; }
+    header{ padding:6px 4px 10px; }
+    #btnPrint, #btnHowTo{ display:none !important; }
+    .modal-overlay{ display:none !important; }
+    main{ padding:6px 4px 20px; }
+    .instructions{ display:none !important; }
+    .quickguide{ margin-top:10px; }
+
+    .layout > section.panel:first-child{
+      position:static !important; max-height:none !important;
+    }
+    .layout > section.panel:first-child > .panel-body{
+      flex:none !important;
+    }
+    .table-scroll{
+      flex:none !important; max-height:none !important; overflow:visible !important;
+    }
+    table{ font-size:.68rem; }
+    thead th{ position:static; }
+    .buttons{ display:none !important; }
+    .layout{ break-inside:avoid; }
+    section.panel{ break-inside:avoid-page; }
+  }
 </style>
 </head>
 <body>
@@ -167,7 +204,10 @@
 <header>
   <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
     <h1>SEM-Based Well-being Assessment Tool</h1>
-    <button id="btnHowTo" style="background:var(--clay); border-color:#7a3c29; white-space:nowrap;">How to use this tool</button>
+    <div class="buttons" style="gap:8px;">
+      <button id="btnPrint" style="background:var(--teal-dark); border-color:#1c332e; white-space:nowrap;">Print / save as PDF (landscape)</button>
+      <button id="btnHowTo" style="background:var(--clay); border-color:#7a3c29; white-space:nowrap;">How to use this tool</button>
+    </div>
   </div>
   <div class="quickguide">
     <div class="qg-item">
@@ -650,6 +690,9 @@ document.getElementById('btnExport').addEventListener('click', ()=>{
 
 /* ===================== HOW-TO-USE MODAL ===================== */
 const howToOverlay = document.getElementById('howToOverlay');
+document.getElementById('btnPrint').addEventListener('click', ()=>{
+  window.print();
+});
 document.getElementById('btnHowTo').addEventListener('click', ()=>{
   howToOverlay.classList.add('open');
 });
